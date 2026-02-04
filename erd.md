@@ -1,11 +1,16 @@
-erDiagram
-  DIM_BRAND ||--o{ FACT_CAR_LISTING : "has"
+## ERD (논리 구조)
 
+- dim_brand (1) --- (N) fact_car_listing
+- brand_id → brand_name
+- fact_car_listing은 브랜드를 FK로 참조
+
+```mermaid
+erDiagram
+  DIM_BRAND ||--o{ FACT_CAR_LISTING : has
   DIM_BRAND {
     INT brand_id PK
-    VARCHAR brand_name "UNIQUE"
+    VARCHAR brand_name
   }
-
   FACT_CAR_LISTING {
     BIGINT listing_id PK
     INT brand_id FK
@@ -16,6 +21,4 @@ erDiagram
     VARCHAR fuel_type
     VARCHAR region
     VARCHAR url
-    BIGINT raw_id
-    TIMESTAMP created_at
   }
