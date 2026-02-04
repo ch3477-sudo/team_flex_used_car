@@ -3,14 +3,15 @@
 # -------------------------------------------------
 import re
 from pathlib import Path
-
-import numpy as np
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
 # 프로젝트 공통 데이터 저장 경로
 from paths import DATA_DIR
+
+# 프로젝트 정규식
+from pasers.regex_patterns import RE_MODEL_CODE, RE_MAKER_CODE
 
 
 class BobeCar:
@@ -209,11 +210,10 @@ class BobeCar:
 
             # 제조사 정보 파싱
             for idx, car_category in enumerate(car_categories, start=1):
-                onclick = car_category.get("onclick", "")
-                match = re.search(r"car_depth_lite\('(\d+)'", onclick)
+
+                match = RE_MAKER_CODE.search(car_category.get("onclick", ""))
                 if not match:
                     raise ValueError(f"[{idx}] 제조사 코드 파싱 실패")
-
                 maker_code = int(match.group(1))
 
                 name_tag = car_category.select_one("span.t1")
@@ -302,11 +302,10 @@ class BobeCar:
 
             # 차량 모델 정보 파싱
             for idx, model_category in enumerate(model_categories, start=1):
-                onclick = model_category.get("onclick", "")
-                match = re.search(r"modelSel\(\s*(\d+)\s*,", onclick)
+
+                match = RE_MODEL_CODE.search((model_category.get("onclick", "")))
                 if not match:
                     raise ValueError(f"[{idx}] 차량 모델 코드 파싱 실패")
-
                 model_code = int(match.group(1))
 
                 name_tag = model_category.select_one("span.t1")
@@ -338,7 +337,7 @@ class BobeCar:
             csv_path = self.save_df_to_csv(
                 df=df.reset_index(),
                 filename="models",
-                dedup_keys=["model_code", "maker_code" ,"origin"],
+                dedup_keys=["model_code", "maker_code", "origin"],
             )
 
             return {
